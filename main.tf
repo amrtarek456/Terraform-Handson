@@ -127,7 +127,7 @@ resource "aws_default_security_group" "default_sec_group" {
 
 #Create Key Pair
 resource "aws_key_pair" "test_ssh_key" {
-  key_name   = "testing_ssh_key"
+  key_name   = "testing_ssh_key1"
   public_key = file(var.ssh_public_key)
 }
 
@@ -241,9 +241,11 @@ resource "aws_alb_target_group" "lb_target_group" {
 #Create LoadBalancer Target Group Attachment to my Instances
 resource "aws_alb_target_group_attachment" "attach_target_group" {
   target_group_arn = aws_alb_target_group.lb_target_group.arn
-  #target_id = flatten(aws_instance.my_vm.instance_id)
-  target_id = aws_instance.my_vm.id
-  port      = 80
+  count            = 2
+  target_id        = element(split(",", join(",", aws_instance.my_vm.*.id)), count.index)
+
+
+  port = 80
 }
 
 #Create Load Balancer Secuirty Group
