@@ -173,7 +173,7 @@ resource "aws_instance" "my_vm2" {
   }
 
   provisioner "local-exec" {
-    command = "echo public-ip1 ${aws_instance.my_vm.public_ip} '\n' public-ip2 ${aws_instance.my_vm2.public_ip} >> all-ips.txt"
+    command = "echo public-ip1 ${aws_instance.my_vm.public_ip} $'\n' public-ip2 ${aws_instance.my_vm2.public_ip} >> all-ips.txt"
   }
 }
 
