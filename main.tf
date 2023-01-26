@@ -218,6 +218,17 @@ resource "aws_alb" "my_lb" {
   ]
 }
 
+resource "aws_alb" "my_lb_private" {
+  name               = "mylbprivate"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.lb_sg.id]
+  subnets = [
+    aws_subnet.web3.id,
+    aws_subnet.web4.id,
+  ]
+}
+
 #Create LB Listner
 resource "aws_alb_listener" "lb_listener" {
   load_balancer_arn = aws_alb.my_lb.arn
@@ -230,9 +241,27 @@ resource "aws_alb_listener" "lb_listener" {
   }
 }
 
+resource "aws_alb_listener" "lb_listener_private" {
+  load_balancer_arn = aws_alb.my_lb_private.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_alb_target_group.lb_target_group_private.arn
+    type             = "forward"
+  }
+}
+
 #Create LB TG
 resource "aws_alb_target_group" "lb_target_group" {
   name     = "mytg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+}
+
+resource "aws_alb_target_group" "lb_target_group_private" {
+  name     = "mytgprivate"
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
@@ -251,6 +280,23 @@ resource "aws_alb_target_group_attachment" "attach_target_group2" {
   target_group_arn = aws_alb_target_group.lb_target_group.arn
   port = 80
   target_id = aws_instance.my_vm2.id
+ /*  count            = 2
+  target_id        = element(split(",", join(",", aws_instance.my_vm.*.id)), count.index) */
+}
+
+resource "aws_alb_target_group_attachment" "attach_target_group3" {
+  target_group_arn = aws_alb_target_group.lb_target_group_private.arn
+  port = 80
+  target_id = aws_instance.my_vm3.id
+ /*  count            = 2
+  target_id        = element(split(",", join(",", aws_instance.my_vm.*.id)), count.index) */
+}
+
+
+resource "aws_alb_target_group_attachment" "attach_target_group4" {
+  target_group_arn = aws_alb_target_group.lb_target_group_private.arn
+  port = 80
+  target_id = aws_instance.my_vm4.id
  /*  count            = 2
   target_id        = element(split(",", join(",", aws_instance.my_vm.*.id)), count.index) */
 }
