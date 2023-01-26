@@ -241,11 +241,18 @@ resource "aws_alb_target_group" "lb_target_group" {
 #Create LoadBalancer Target Group Attachment to my Instances
 resource "aws_alb_target_group_attachment" "attach_target_group" {
   target_group_arn = aws_alb_target_group.lb_target_group.arn
-  count            = 2
-  target_id        = element(split(",", join(",", aws_instance.my_vm.*.id)), count.index)
-
-
   port = 80
+  target_id = aws_instance.my_vm.id
+ /*  count            = 2
+  target_id        = element(split(",", join(",", aws_instance.my_vm.*.id)), count.index) */
+}
+
+resource "aws_alb_target_group_attachment" "attach_target_group2" {
+  target_group_arn = aws_alb_target_group.lb_target_group.arn
+  port = 80
+  target_id = aws_instance.my_vm2.id
+ /*  count            = 2
+  target_id        = element(split(",", join(",", aws_instance.my_vm.*.id)), count.index) */
 }
 
 #Create Load Balancer Secuirty Group
